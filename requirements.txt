@@ -1,0 +1,6 @@
+requests
+beautifulsoup4
+goose3
+html2text
+pdfminer.six
+tqdm
