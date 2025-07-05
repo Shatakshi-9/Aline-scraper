@@ -1,0 +1,94 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Aline Scraper</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background-color: #f8f9fa;
+            color: #333;
+        }
+        .container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background: #fff;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            border-radius: 8px;
+        }
+        h1 {
+            color: #2c3e50;
+        }
+        code {
+            background-color: #f1f1f1;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: Consolas, monospace;
+        }
+        pre {
+            background: #f4f4f4;
+            padding: 1rem;
+            overflow-x: auto;
+        }
+        a {
+            color: #007acc;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        .badge {
+            background: #007acc;
+            color: #fff;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 Aline Scraper</h1>
+        <p class="badge">Enterprise-Ready Python Scraper</p>
+        <p>
+            This is a high-performance, asynchronous content scraper designed to build structured knowledge bases from blogs, PDFs, and public websites.
+        </p>
+
+        <h2>🔧 Features</h2>
+        <ul>
+            <li>Async and sync scraping modes</li>
+            <li>Robust error handling and retries</li>
+            <li>robots.txt compliance & rate limiting</li>
+            <li>Markdown-formatted content extraction</li>
+            <li>PDF support + YAML configuration</li>
+        </ul>
+
+        <h2>▶️ How to Run</h2>
+        <pre><code># Sync blog scrape
+python main.py --url https://interviewing.io/blog
+
+# Async + checkpoint resume
+python main.py --url https://interviewing.io/blog --async --resume
+
+# PDF extraction
+python main.py --pdf ./resources/sample.pdf
+        </code></pre>
+
+        <h2>🐳 Docker Support</h2>
+        <pre><code>docker build -t aline-scraper .
+docker run --rm -v $PWD/output:/app/output aline-scraper --url https://interviewing.io/blog --async
+        </code></pre>
+
+        <h2>📦 GitHub Repository</h2>
+        <p>
+            <a href="https://github.com/Shatakshi-9/Aline-scraper" target="_blank">View on GitHub →</a>
+        </p>
+    </div>
+</body>
+</html>
