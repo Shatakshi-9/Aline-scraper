@@ -10,4 +10,4 @@ tqdm
 fastapi
 uvicorn[standard]
 structlog
-
+aiohttp
