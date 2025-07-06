@@ -6,3 +6,4 @@ pdfminer.six
 tqdm
 fastapi
 uvicorn[standard]
+structlog
