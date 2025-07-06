@@ -25,7 +25,7 @@ def scrape(url: str = Query(..., description="URL to scrape (blog post or blog i
         return JSONResponse(status_code=500, content={"error": str(e)})'''
 
 
-    def scrape_pdf(self, url: str, team_id: str = "aline123") -> dict:
+        def scrape_pdf(self, url: str, team_id: str = "aline123") -> dict:
         from io import BytesIO
         from pdfminer.high_level import extract_text
 
@@ -57,23 +57,23 @@ def scrape(url: str = Query(..., description="URL to scrape (blog post or blog i
         try:
             response = requests.get(url, timeout=10)
             response.raise_for_status()
+            soup = BeautifulSoup(response.text, "html.parser")
         except Exception as e:
-            raise Exception(f"Failed to fetch topic page: {e}")
+            raise Exception(f"Failed to load topic page: {e}")
 
-        soup = BeautifulSoup(response.text, "html.parser")
-
-        sections = soup.find_all(["section", "article", "div"], class_=lambda x: x and 'topic' in x.lower())
+        article_sections = soup.find_all("article")
         items = []
 
-        for section in sections:
-            title_tag = section.find(["h1", "h2", "h3"])
-            title = title_tag.get_text(strip=True) if title_tag else "Untitled Topic"
-            markdown = self.html2text_converter.handle(str(section))
+        for section in article_sections:
+            title_tag = section.find(["h1", "h2"])
+            title = title_tag.get_text(strip=True) if title_tag else "Untitled"
+            raw_html = str(section)
+            markdown = self.html2text_converter.handle(raw_html)
 
             items.append({
                 "title": title,
                 "content": markdown.strip(),
-                "content_type": "guide",
+                "content_type": "topic_guide",
                 "source_url": url,
                 "author": "",
                 "user_id": ""
@@ -88,21 +88,18 @@ def scrape(url: str = Query(..., description="URL to scrape (blog post or blog i
         try:
             response = requests.get(url, timeout=10)
             response.raise_for_status()
+            soup = BeautifulSoup(response.text, "html.parser")
         except Exception as e:
-            raise Exception(f"Failed to fetch guide page: {e}")
+            raise Exception(f"Failed to load interview guide: {e}")
 
-        soup = BeautifulSoup(response.text, "html.parser")
-
-        guides = soup.find_all("article")
-        if not guides:
-            guides = soup.find_all("div", class_=lambda x: x and "guide" in x.lower())
-
+        guide_sections = soup.find_all("section")
         items = []
 
-        for guide in guides:
-            title_tag = guide.find(["h1", "h2", "h3"])
-            title = title_tag.get_text(strip=True) if title_tag else "Interview Guide"
-            markdown = self.html2text_converter.handle(str(guide))
+        for section in guide_sections:
+            title_tag = section.find(["h1", "h2"])
+            title = title_tag.get_text(strip=True) if title_tag else "Untitled"
+            raw_html = str(section)
+            markdown = self.html2text_converter.handle(raw_html)
 
             items.append({
                 "title": title,
@@ -117,3 +114,4 @@ def scrape(url: str = Query(..., description="URL to scrape (blog post or blog i
             "team_id": team_id,
             "items": items
         }
+
