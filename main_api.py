@@ -1,6 +1,6 @@
 from fastapi import FastAPI, Query
 from fastapi.responses import JSONResponse
-from scraper.extractor import extract_from_url, extract_from_blog_index
+from extractor import extract_from_url, extract_from_blog_index
 from urllib.parse import urlparse
 
 app = FastAPI(title="Aline Scraper API")
