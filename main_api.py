@@ -25,10 +25,61 @@ def scrape(url: str = Query(..., description="URL to scrape (blog post or blog i
         return JSONResponse(status_code=500, content={"error": str(e)})'''
 
 
-        def scrape_pdf(self, url: str, team_id: str = "aline123") -> dict:
-        from io import BytesIO
-        from pdfminer.high_level import extract_text
+from fastapi import FastAPI, Request, HTTPException
+from fastapi.responses import JSONResponse
+from pydantic import BaseModel
+from typing import Optional
+import requests
+from bs4 import BeautifulSoup
+import html2text
+import re
+from urllib.parse import urljoin, urlparse
+from datetime import datetime
+import logging
+from io import BytesIO
+from pdfminer.high_level import extract_text
 
+app = FastAPI()
+logging.basicConfig(level=logging.INFO)
+
+class BlogScraper:
+    def __init__(self):
+        self.html2text_converter = html2text.HTML2Text()
+        self.html2text_converter.ignore_links = False
+        self.html2text_converter.ignore_images = False
+        self.html2text_converter.body_width = 0
+
+    def scrape_blog(self, url: str, team_id: str) -> dict:
+        try:
+            response = requests.get(url, timeout=10)
+            response.raise_for_status()
+            soup = BeautifulSoup(response.text, "html.parser")
+        except Exception as e:
+            raise Exception(f"Failed to fetch blog: {e}")
+
+        articles = soup.find_all("article")
+        items = []
+
+        for article in articles:
+            title_tag = article.find(["h1", "h2", "h3"])
+            title = title_tag.get_text(strip=True) if title_tag else "Untitled"
+            markdown = self.html2text_converter.handle(str(article))
+
+            items.append({
+                "title": title,
+                "content": markdown.strip(),
+                "content_type": "blog",
+                "source_url": url,
+                "author": "",
+                "user_id": ""
+            })
+
+        return {
+            "team_id": team_id,
+            "items": items
+        }
+
+    def scrape_pdf(self, url: str, team_id: str = "aline123") -> dict:
         try:
             response = requests.get(url, timeout=15)
             response.raise_for_status()
@@ -115,3 +166,53 @@ def scrape(url: str = Query(..., description="URL to scrape (blog post or blog i
             "items": items
         }
 
+# Instantiate scraper
+scraper = BlogScraper()
+
+@app.get("/scrape")
+async def scrape(url: str, team_id: str = "aline123"):
+    if not url:
+        raise HTTPException(status_code=400, detail="URL parameter is required")
+
+    try:
+        result = scraper.scrape_blog(url, team_id)
+        return JSONResponse(content=result)
+    except Exception as e:
+        logging.error(f"Scraping error: {str(e)}")
+        return JSONResponse(status_code=500, content={
+            "team_id": team_id,
+            "items": [],
+            "error": f"Scraping failed: {str(e)}"
+        })
+
+@app.get("/health")
+async def health_check():
+    return {
+        "status": "healthy",
+        "timestamp": datetime.now().isoformat(),
+        "version": "2.0"
+    }
+
+@app.get("/test")
+async def test_endpoint():
+    test_urls = [
+        "https://interviewing.io/blog",
+        "https://quill.co/blog"
+    ]
+
+    results = {}
+    for url in test_urls:
+        try:
+            result = scraper.scrape_blog(url)
+            results[url] = {
+                "success": True,
+                "post_count": len(result.get('items', [])),
+                "sample_titles": [item.get('title') for item in result.get('items', [])[:3]]
+            }
+        except Exception as e:
+            results[url] = {
+                "success": False,
+                "error": str(e)
+            }
+
+    return results
