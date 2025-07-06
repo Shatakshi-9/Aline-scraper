@@ -1,9 +1,7 @@
-requests
-beautifulsoup4
-goose3
-html2text
-pdfminer.six
-tqdm
-fastapi
-uvicorn[standard]
-structlog
+Flask==2.3.3
+requests==2.31.0
+beautifulsoup4==4.12.2
+html2text==2020.1.16
+lxml==4.9.3
+gunicorn==21.2.0
+urllib3==1.26.16
