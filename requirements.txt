@@ -4,3 +4,5 @@ goose3
 html2text
 pdfminer.six
 tqdm
+fastapi
+uvicorn[standard]
